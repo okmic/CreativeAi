@@ -4,7 +4,6 @@ import Slide from '../Slide/Slide'
 import Background from '../ui/Background/Background'
 import Text from '../Text/Text'
 import voice from "../../media/voice.mp3"
-import music from "../../media/music.mp3"
 
 interface SliderProps {
   children: React.ReactNode[]
@@ -20,42 +19,27 @@ const Slider: React.FC<SliderProps> = ({ children, timeMarks }) => {
   const [showText, setShowText] = useState(false)
   const [showAudioAlert, setShowAudioAlert] = useState(false)
   
-  const voiceRef = useRef<HTMLAudioElement>(null)
-  const musicRef = useRef<HTMLAudioElement>(null)
+  const audioRef = useRef<HTMLAudioElement>(null)
   const animationRef = useRef<number>(0)
   const startTimeRef = useRef<number>(0)
   const currentTimeRef = useRef<number>(0)
 
   useEffect(() => {
-    voiceRef.current = new Audio(voice)
-    musicRef.current = new Audio(music)
-    
-    voiceRef.current.preload = 'metadata'
-    musicRef.current.preload = 'metadata'
-    
-    voiceRef.current.volume = 1
-    musicRef.current.volume = 0.1
-    
-    musicRef.current.loop = true
+    audioRef.current = new Audio(voice)
+    audioRef.current.preload = 'metadata'
 
-    const handleVoiceEnded = () => {
+    const handleEnded = () => {
       setIsPlaying(false)
       setAppState('finished')
       setCurrentSlide(0)
-      if (musicRef.current) {
-        musicRef.current.pause()
-      }
     }
 
-    voiceRef.current.addEventListener('ended', handleVoiceEnded)
+    audioRef.current.addEventListener('ended', handleEnded)
 
     return () => {
-      if (voiceRef.current) {
-        voiceRef.current.removeEventListener('ended', handleVoiceEnded)
-        voiceRef.current.pause()
-      }
-      if (musicRef.current) {
-        musicRef.current.pause()
+      if (audioRef.current) {
+        audioRef.current.removeEventListener('ended', handleEnded)
+        audioRef.current.pause()
       }
       if (animationRef.current) {
         cancelAnimationFrame(animationRef.current)
@@ -102,37 +86,28 @@ const Slider: React.FC<SliderProps> = ({ children, timeMarks }) => {
   }, [isPlaying, updateSlide])
 
   const togglePlayPause = async () => {
-    if (!voiceRef.current || !musicRef.current) return
+    if (!audioRef.current) return
 
     if (isPlaying) {
       setIsPlaying(false)
-      voiceRef.current.pause()
-      musicRef.current.pause()
+      audioRef.current.pause()
     } else {
       try {
-        await Promise.all([
-          voiceRef.current.play(),
-          musicRef.current.play()
-        ])
+        await audioRef.current.play()
         setIsPlaying(true)
         setAppState('playing')
         setShowText(false)
         setShowAudioAlert(false)
       } catch (error) {
-        console.log('Audio play failed:', error)
         setShowAudioAlert(true)
       }
     }
   }
 
   const resetPresentation = () => {
-    if (voiceRef.current) {
-      voiceRef.current.pause()
-      voiceRef.current.currentTime = 0
-    }
-    if (musicRef.current) {
-      musicRef.current.pause()
-      musicRef.current.currentTime = 0
+    if (audioRef.current) {
+      audioRef.current.pause()
+      audioRef.current.currentTime = 0
     }
     setIsPlaying(false)
     setCurrentSlide(0)
@@ -142,17 +117,11 @@ const Slider: React.FC<SliderProps> = ({ children, timeMarks }) => {
   }
 
   const startPresentation = async () => {
-    if (!voiceRef.current || !musicRef.current) return
+    if (!audioRef.current) return
     
     try {
-      voiceRef.current.currentTime = 0
-      musicRef.current.currentTime = 0
-      
-      await Promise.all([
-        voiceRef.current.play(),
-        musicRef.current.play()
-      ])
-      
+      audioRef.current.currentTime = 0
+      await audioRef.current.play()
       setIsPlaying(true)
       setAppState('playing')
       setShowText(false)
@@ -160,7 +129,6 @@ const Slider: React.FC<SliderProps> = ({ children, timeMarks }) => {
       currentTimeRef.current = 0
       startTimeRef.current = Date.now()
     } catch (error) {
-      console.log('Audio play failed:', error)
       setShowAudioAlert(true)
     }
   }
