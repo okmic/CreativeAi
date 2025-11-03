@@ -51,9 +51,7 @@ export const Slide2 = () => (
       </div>
       
       <div className="mt-6 md:mt-8 bg-white/5 backdrop-blur-lg rounded-xl p-3 md:p-4 border border-white/10">
-        <a href='https://monocler.ru/iskusstvo-myishleniya-grem-uolles-o-chetyiryoh-etapah-tvorchestva/' target='_blank' className="text-xs md:text-sm opacity-90">
           Модель творческого процесса Грэма Уоллеса · 1926
-        </a>
       </div>
     </div>
   </div>

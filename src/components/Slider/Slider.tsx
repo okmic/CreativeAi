@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react'
-import { Play, Pause, BookOpen, Headphones, Volume2, VolumeX } from 'lucide-react'
+import { Play, Pause, BookOpen, Headphones, RotateCcw } from 'lucide-react'
 import Slide from '../Slide/Slide'
 import Background from '../ui/Background/Background'
 import Text from '../Text/Text'
 import voice from "../../media/voice.mp3"
+import music from "../../media/music.mp3"
 
 interface SliderProps {
   children: React.ReactNode[]
@@ -17,37 +18,44 @@ const Slider: React.FC<SliderProps> = ({ children, timeMarks }) => {
   const [isPlaying, setIsPlaying] = useState(false)
   const [appState, setAppState] = useState<AppState>('initial')
   const [showText, setShowText] = useState(false)
-  const [isMuted, setIsMuted] = useState(false)
   const [showAudioAlert, setShowAudioAlert] = useState(false)
   
-  const audioRef = useRef<HTMLAudioElement>(null)
+  const voiceRef = useRef<HTMLAudioElement>(null)
+  const musicRef = useRef<HTMLAudioElement>(null)
   const animationRef = useRef<number>(0)
   const startTimeRef = useRef<number>(0)
   const currentTimeRef = useRef<number>(0)
 
   useEffect(() => {
-    audioRef.current = new Audio(voice)
-    audioRef.current.preload = 'metadata'
-    audioRef.current.volume = 1
+    voiceRef.current = new Audio(voice)
+    musicRef.current = new Audio(music)
     
-    const handleEnded = () => {
+    voiceRef.current.preload = 'metadata'
+    musicRef.current.preload = 'metadata'
+    
+    voiceRef.current.volume = 1
+    musicRef.current.volume = 0.1
+    
+    musicRef.current.loop = true
+
+    const handleVoiceEnded = () => {
       setIsPlaying(false)
       setAppState('finished')
       setCurrentSlide(0)
+      if (musicRef.current) {
+        musicRef.current.pause()
+      }
     }
 
-    const handleCanPlay = () => {
-      console.log('Audio can play')
-    }
-
-    audioRef.current.addEventListener('ended', handleEnded)
-    audioRef.current.addEventListener('canplay', handleCanPlay)
+    voiceRef.current.addEventListener('ended', handleVoiceEnded)
 
     return () => {
-      if (audioRef.current) {
-        audioRef.current.removeEventListener('ended', handleEnded)
-        audioRef.current.removeEventListener('canplay', handleCanPlay)
-        audioRef.current.pause()
+      if (voiceRef.current) {
+        voiceRef.current.removeEventListener('ended', handleVoiceEnded)
+        voiceRef.current.pause()
+      }
+      if (musicRef.current) {
+        musicRef.current.pause()
       }
       if (animationRef.current) {
         cancelAnimationFrame(animationRef.current)
@@ -94,14 +102,18 @@ const Slider: React.FC<SliderProps> = ({ children, timeMarks }) => {
   }, [isPlaying, updateSlide])
 
   const togglePlayPause = async () => {
-    if (!audioRef.current) return
+    if (!voiceRef.current || !musicRef.current) return
 
     if (isPlaying) {
       setIsPlaying(false)
-      audioRef.current.pause()
+      voiceRef.current.pause()
+      musicRef.current.pause()
     } else {
       try {
-        await audioRef.current.play()
+        await Promise.all([
+          voiceRef.current.play(),
+          musicRef.current.play()
+        ])
         setIsPlaying(true)
         setAppState('playing')
         setShowText(false)
@@ -113,17 +125,14 @@ const Slider: React.FC<SliderProps> = ({ children, timeMarks }) => {
     }
   }
 
-  const toggleMute = () => {
-    if (audioRef.current) {
-      audioRef.current.muted = !audioRef.current.muted
-      setIsMuted(audioRef.current.muted)
-    }
-  }
-
   const resetPresentation = () => {
-    if (audioRef.current) {
-      audioRef.current.pause()
-      audioRef.current.currentTime = 0
+    if (voiceRef.current) {
+      voiceRef.current.pause()
+      voiceRef.current.currentTime = 0
+    }
+    if (musicRef.current) {
+      musicRef.current.pause()
+      musicRef.current.currentTime = 0
     }
     setIsPlaying(false)
     setCurrentSlide(0)
@@ -133,11 +142,17 @@ const Slider: React.FC<SliderProps> = ({ children, timeMarks }) => {
   }
 
   const startPresentation = async () => {
-    if (!audioRef.current) return
+    if (!voiceRef.current || !musicRef.current) return
     
     try {
-      audioRef.current.currentTime = 0
-      await audioRef.current.play()
+      voiceRef.current.currentTime = 0
+      musicRef.current.currentTime = 0
+      
+      await Promise.all([
+        voiceRef.current.play(),
+        musicRef.current.play()
+      ])
+      
       setIsPlaying(true)
       setAppState('playing')
       setShowText(false)
@@ -210,7 +225,7 @@ const Slider: React.FC<SliderProps> = ({ children, timeMarks }) => {
         <Background />
         
         <div className="flex items-center justify-center h-full px-4 pb-20">
-          <div className="text-white text-center backdrop-blur-lg bg-white/10 p-6 rounded-2xl border border-white/20 max-w-md w-full">
+          <div className="text-white text-center backdrop-blur-lg bg-white/10 p-6 rounded-2xl border border-white/20 max-w-md w-full max-h-[90vh] overflow-y-auto">
             <div className="flex justify-center mb-4">
               <Headphones className="w-10 h-10 text-purple-300" />
             </div>
@@ -255,7 +270,7 @@ const Slider: React.FC<SliderProps> = ({ children, timeMarks }) => {
         <Background />
         
         <div className="flex items-center justify-center h-full px-4 pb-20">
-          <div className="text-white text-center backdrop-blur-lg bg-white/10 p-6 rounded-2xl border border-white/20 max-w-md w-full">
+          <div className="text-white text-center backdrop-blur-lg bg-white/10 p-6 rounded-2xl border border-white/20 max-w-md w-full max-h-[90vh] overflow-y-auto">
             <h1 className="text-xl font-bold mb-4">Презентация завершена!</h1>
             <p className="mb-4 text-white/80 text-sm">
               Надеюсь, было интересно и полезно
@@ -291,11 +306,15 @@ const Slider: React.FC<SliderProps> = ({ children, timeMarks }) => {
     <div className="relative w-full h-screen overflow-hidden select-none touch-pan-y">
       <Background />
       
-      {React.Children.map(children, (child, index) => (
-        <Slide isActive={index === currentSlide}>
-          {child}
-        </Slide>
-      ))}
+      <div className="w-full h-full flex items-center justify-center">
+        <div className="max-w-full max-h-full">
+          {React.Children.map(children, (child, index) => (
+            <Slide isActive={index === currentSlide}>
+              {child}
+            </Slide>
+          ))}
+        </div>
+      </div>
       
       {showAudioAlert && (
         <div className="absolute top-4 left-4 right-4 z-50">
@@ -306,55 +325,28 @@ const Slider: React.FC<SliderProps> = ({ children, timeMarks }) => {
           </div>
         </div>
       )}
-      
-      <div className="absolute bottom-16 left-1/2 transform -translate-x-1/2 flex space-x-1 z-10">
-        {children.map((_, index) => (
-          <div
-            key={index}
-            className={`w-2 h-2 rounded-full transition-all duration-300 ${
-              index === currentSlide 
-                ? 'bg-white scale-125' 
-                : index < currentSlide
-                ? 'bg-green-400'
-                : 'bg-purple-200/30'
-            }`}
-          />
-        ))}
-      </div>
 
-      <div className="absolute bottom-4 left-4 right-4 flex space-x-2 z-10">
-        <button
-          onClick={toggleMute}
-          className="p-3 rounded-full bg-white/10 backdrop-blur-lg border border-white/20 transition-all duration-300 active:scale-95 hover:bg-white/20 flex-shrink-0"
-        >
-          {isMuted ? (
-            <VolumeX className="w-4 h-4 text-white" />
-          ) : (
-            <Volume2 className="w-4 h-4 text-white" />
-          )}
-        </button>
-        
-        <button
-          onClick={resetPresentation}
-          className="flex-1 px-3 py-2 rounded-full bg-white/10 backdrop-blur-lg border border-white/20 transition-all duration-300 active:scale-95 text-white text-sm hover:bg-white/20"
-        >
-          С начала
-        </button>
-        
+      <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 z-10">
         <button
           onClick={togglePlayPause}
-          className="p-3 rounded-full bg-white/10 backdrop-blur-lg border border-white/20 transition-all duration-300 active:scale-95 hover:bg-white/20 flex-shrink-0"
+          className="p-4 rounded-full bg-white/20 backdrop-blur-lg border border-white/30 transition-all duration-300 active:scale-95 hover:bg-white/30"
         >
           {isPlaying ? (
-            <Pause className="w-4 h-4 text-white" />
+            <Pause className="w-6 h-6 text-white" />
           ) : (
-            <Play className="w-4 h-4 text-white" />
+            <Play className="w-6 h-6 text-white" />
           )}
         </button>
       </div>
 
-      <div className="absolute top-3 left-1/2 transform -translate-x-1/2 text-white/50 text-xs backdrop-blur-lg bg-white/5 px-3 py-1 rounded-full border border-white/10">
-        {isPlaying ? 'Идёт презентация...' : 'На паузе'}
+      <div className="absolute bottom-4 right-4 z-10">
+        <button
+          onClick={resetPresentation}
+          className="p-3 rounded-full bg-white/10 backdrop-blur-lg border border-white/20 transition-all duration-300 active:scale-95 hover:bg-white/20"
+          title="С начала"
+        >
+          <RotateCcw className="w-4 h-4 text-white" />
+        </button>
       </div>
     </div>
   )
