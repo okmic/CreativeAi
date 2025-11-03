@@ -1,5 +1,9 @@
 @import "tailwindcss";
 
+html body {
+  background-color: #611697;
+}
+
 @keyframes float {
   0%, 100% {
     transform: translateY(0) rotate(0deg);

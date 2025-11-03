@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react'
-import { Play, Pause, BookOpen, Headphones } from 'lucide-react'
+import { Play, Pause, BookOpen, Headphones, Volume2, VolumeX } from 'lucide-react'
 import Slide from '../Slide/Slide'
 import Background from '../ui/Background/Background'
 import Text from '../Text/Text'
+import voice from "../../media/voice.mp3"
 
 interface SliderProps {
   children: React.ReactNode[]
@@ -16,15 +17,18 @@ const Slider: React.FC<SliderProps> = ({ children, timeMarks }) => {
   const [isPlaying, setIsPlaying] = useState(false)
   const [appState, setAppState] = useState<AppState>('initial')
   const [showText, setShowText] = useState(false)
+  const [isMuted, setIsMuted] = useState(false)
+  const [showAudioAlert, setShowAudioAlert] = useState(false)
   
-  const audioRef = useRef<HTMLAudioElement | null>(null)
+  const audioRef = useRef<HTMLAudioElement>(null)
   const animationRef = useRef<number>(0)
   const startTimeRef = useRef<number>(0)
   const currentTimeRef = useRef<number>(0)
 
   useEffect(() => {
-    audioRef.current = new Audio()
-    audioRef.current.preload = 'none'
+    audioRef.current = new Audio(voice)
+    audioRef.current.preload = 'metadata'
+    audioRef.current.volume = 1
     
     const handleEnded = () => {
       setIsPlaying(false)
@@ -32,11 +36,17 @@ const Slider: React.FC<SliderProps> = ({ children, timeMarks }) => {
       setCurrentSlide(0)
     }
 
+    const handleCanPlay = () => {
+      console.log('Audio can play')
+    }
+
     audioRef.current.addEventListener('ended', handleEnded)
+    audioRef.current.addEventListener('canplay', handleCanPlay)
 
     return () => {
       if (audioRef.current) {
         audioRef.current.removeEventListener('ended', handleEnded)
+        audioRef.current.removeEventListener('canplay', handleCanPlay)
         audioRef.current.pause()
       }
       if (animationRef.current) {
@@ -83,19 +93,30 @@ const Slider: React.FC<SliderProps> = ({ children, timeMarks }) => {
     }
   }, [isPlaying, updateSlide])
 
-  const togglePlayPause = () => {
+  const togglePlayPause = async () => {
+    if (!audioRef.current) return
+
     if (isPlaying) {
       setIsPlaying(false)
-      if (audioRef.current) {
-        audioRef.current.pause()
-      }
+      audioRef.current.pause()
     } else {
-      setIsPlaying(true)
-      setAppState('playing')
-      setShowText(false)
-      if (audioRef.current) {
-        audioRef.current.play().catch(console.error)
+      try {
+        await audioRef.current.play()
+        setIsPlaying(true)
+        setAppState('playing')
+        setShowText(false)
+        setShowAudioAlert(false)
+      } catch (error) {
+        console.log('Audio play failed:', error)
+        setShowAudioAlert(true)
       }
+    }
+  }
+
+  const toggleMute = () => {
+    if (audioRef.current) {
+      audioRef.current.muted = !audioRef.current.muted
+      setIsMuted(audioRef.current.muted)
     }
   }
 
@@ -108,14 +129,25 @@ const Slider: React.FC<SliderProps> = ({ children, timeMarks }) => {
     setCurrentSlide(0)
     currentTimeRef.current = 0
     setAppState('initial')
+    setShowAudioAlert(false)
   }
 
-  const startPresentation = () => {
-    setIsPlaying(true)
-    setAppState('playing')
-    setShowText(false)
-    currentTimeRef.current = 0
-    startTimeRef.current = Date.now()
+  const startPresentation = async () => {
+    if (!audioRef.current) return
+    
+    try {
+      audioRef.current.currentTime = 0
+      await audioRef.current.play()
+      setIsPlaying(true)
+      setAppState('playing')
+      setShowText(false)
+      setShowAudioAlert(false)
+      currentTimeRef.current = 0
+      startTimeRef.current = Date.now()
+    } catch (error) {
+      console.log('Audio play failed:', error)
+      setShowAudioAlert(true)
+    }
   }
 
   useEffect(() => {
@@ -265,6 +297,16 @@ const Slider: React.FC<SliderProps> = ({ children, timeMarks }) => {
         </Slide>
       ))}
       
+      {showAudioAlert && (
+        <div className="absolute top-4 left-4 right-4 z-50">
+          <div className="bg-red-500/20 backdrop-blur-lg border border-red-500/30 rounded-lg p-4">
+            <p className="text-red-200 text-sm text-center">
+              Не удалось воспроизвести аудио. Нажмите на экран и попробуйте снова.
+            </p>
+          </div>
+        </div>
+      )}
+      
       <div className="absolute bottom-20 left-1/2 transform -translate-x-1/2 flex space-x-1 z-10">
         {children.map((_, index) => (
           <div
@@ -281,6 +323,17 @@ const Slider: React.FC<SliderProps> = ({ children, timeMarks }) => {
       </div>
 
       <div className="absolute bottom-4 right-4 flex space-x-2 z-10">
+        <button
+          onClick={toggleMute}
+          className="p-3 rounded-full bg-white/10 backdrop-blur-lg border border-white/20 transition-all duration-300 active:scale-95 hover:bg-white/20"
+        >
+          {isMuted ? (
+            <VolumeX className="w-5 h-5 text-white" />
+          ) : (
+            <Volume2 className="w-5 h-5 text-white" />
+          )}
+        </button>
+        
         <button
           onClick={resetPresentation}
           className="px-3 py-2 rounded-full bg-white/10 backdrop-blur-lg border border-white/20 transition-all duration-300 active:scale-95 text-white text-sm hover:bg-white/20"
