@@ -181,24 +181,24 @@ const Slider: React.FC<SliderProps> = ({ children, timeMarks }) => {
     return (
       <div className="relative w-full min-h-screen overflow-y-auto select-none">
         <Background />
-        <div className="py-8">
+        <div className="py-8 pb-24">
           <Text />
-          
-          <div className="fixed bottom-4 right-4 flex space-x-2 z-50">
-            <button
-              onClick={() => setShowText(false)}
-              className="px-4 py-2 rounded-full bg-white/10 backdrop-blur-lg border border-white/20 transition-all duration-300 active:scale-95 text-white text-sm hover:bg-white/20"
-            >
-              Закрыть текст
-            </button>
-            <button
-              onClick={startPresentation}
-              className="px-4 py-2 rounded-full bg-green-500/20 backdrop-blur-lg border border-green-500/30 transition-all duration-300 active:scale-95 text-white text-sm hover:bg-green-500/30 flex items-center space-x-2"
-            >
-              <Play className="w-4 h-4" />
-              <span>Начать презентацию</span>
-            </button>
-          </div>
+        </div>
+        
+        <div className="fixed bottom-4 left-4 right-4 flex space-x-2 z-50">
+          <button
+            onClick={() => setShowText(false)}
+            className="flex-1 px-4 py-3 rounded-full bg-white/10 backdrop-blur-lg border border-white/20 transition-all duration-300 active:scale-95 text-white text-sm hover:bg-white/20"
+          >
+            Закрыть текст
+          </button>
+          <button
+            onClick={startPresentation}
+            className="flex-1 px-4 py-3 rounded-full bg-green-500/20 backdrop-blur-lg border border-green-500/30 transition-all duration-300 active:scale-95 text-white text-sm hover:bg-green-500/30 flex items-center justify-center space-x-2"
+          >
+            <Play className="w-4 h-4" />
+            <span>Начать презентацию</span>
+          </button>
         </div>
       </div>
     )
@@ -209,37 +209,37 @@ const Slider: React.FC<SliderProps> = ({ children, timeMarks }) => {
       <div className="relative w-full h-screen overflow-hidden select-none">
         <Background />
         
-        <div className="flex items-center justify-center h-full">
-          <div className="text-white text-center backdrop-blur-lg bg-white/10 p-8 rounded-2xl border border-white/20 max-w-md mx-4">
+        <div className="flex items-center justify-center h-full px-4 pb-20">
+          <div className="text-white text-center backdrop-blur-lg bg-white/10 p-6 rounded-2xl border border-white/20 max-w-md w-full">
             <div className="flex justify-center mb-4">
-              <Headphones className="w-12 h-12 text-purple-300" />
+              <Headphones className="w-10 h-10 text-purple-300" />
             </div>
-            <h1 className="text-2xl font-bold mb-4">AI & Креативность</h1>
-            <p className="mb-6 text-white/80">
+            <h1 className="text-xl font-bold mb-3">AI & Креативность</h1>
+            <p className="mb-4 text-white/80 text-sm">
               Презентация о том как AI усиливает творческий процесс разработчика
             </p>
             
-            <div className="bg-yellow-500/20 border border-yellow-500/30 rounded-lg p-4 mb-6">
-              <p className="text-yellow-200 text-sm flex items-center justify-center space-x-2">
-                <Headphones className="w-4 h-4" />
+            <div className="bg-yellow-500/20 border border-yellow-500/30 rounded-lg p-3 mb-4">
+              <p className="text-yellow-200 text-xs flex items-center justify-center space-x-2">
+                <Headphones className="w-3 h-3" />
                 <span>Наденьте наушники — здесь важно не только смотреть, но и слушать</span>
               </p>
             </div>
             
-            <div className="space-y-3">
+            <div className="space-y-2">
               <button
                 onClick={startPresentation}
-                className="w-full py-3 rounded-full bg-green-500/20 backdrop-blur-lg border border-green-500/30 transition-all duration-300 active:scale-95 text-white hover:bg-green-500/30 flex items-center justify-center space-x-2"
+                className="w-full py-3 rounded-full bg-green-500/20 backdrop-blur-lg border border-green-500/30 transition-all duration-300 active:scale-95 text-white hover:bg-green-500/30 flex items-center justify-center space-x-2 text-sm"
               >
-                <Play className="w-5 h-5" />
+                <Play className="w-4 h-4" />
                 <span>Начать презентацию</span>
               </button>
               
               <button
                 onClick={() => setShowText(true)}
-                className="w-full py-3 rounded-full bg-white/10 backdrop-blur-lg border border-white/20 transition-all duration-300 active:scale-95 text-white hover:bg-white/20 flex items-center justify-center space-x-2"
+                className="w-full py-3 rounded-full bg-white/10 backdrop-blur-lg border border-white/20 transition-all duration-300 active:scale-95 text-white hover:bg-white/20 flex items-center justify-center space-x-2 text-sm"
               >
-                <BookOpen className="w-5 h-5" />
+                <BookOpen className="w-4 h-4" />
                 <span>Прочитать текст</span>
               </button>
             </div>
@@ -254,19 +254,19 @@ const Slider: React.FC<SliderProps> = ({ children, timeMarks }) => {
       <div className="relative w-full h-screen overflow-hidden select-none">
         <Background />
         
-        <div className="flex items-center justify-center h-full">
-          <div className="text-white text-center backdrop-blur-lg bg-white/10 p-8 rounded-2xl border border-white/20 max-w-md mx-4">
-            <h1 className="text-2xl font-bold mb-4">Презентация завершена!</h1>
-            <p className="mb-6 text-white/80">
+        <div className="flex items-center justify-center h-full px-4 pb-20">
+          <div className="text-white text-center backdrop-blur-lg bg-white/10 p-6 rounded-2xl border border-white/20 max-w-md w-full">
+            <h1 className="text-xl font-bold mb-4">Презентация завершена!</h1>
+            <p className="mb-4 text-white/80 text-sm">
               Надеюсь, было интересно и полезно
             </p>
             
-            <div className="space-y-3">
+            <div className="space-y-2">
               <button
                 onClick={resetPresentation}
-                className="w-full py-3 rounded-full bg-white/10 backdrop-blur-lg border border-white/20 transition-all duration-300 active:scale-95 text-white hover:bg-white/20 flex items-center justify-center space-x-2"
+                className="w-full py-3 rounded-full bg-white/10 backdrop-blur-lg border border-white/20 transition-all duration-300 active:scale-95 text-white hover:bg-white/20 flex items-center justify-center space-x-2 text-sm"
               >
-                <Play className="w-5 h-5" />
+                <Play className="w-4 h-4" />
                 <span>Посмотреть снова</span>
               </button>
               
@@ -275,9 +275,9 @@ const Slider: React.FC<SliderProps> = ({ children, timeMarks }) => {
                   setShowText(true)
                   setAppState('initial')
                 }}
-                className="w-full py-3 rounded-full bg-white/10 backdrop-blur-lg border border-white/20 transition-all duration-300 active:scale-95 text-white hover:bg-white/20 flex items-center justify-center space-x-2"
+                className="w-full py-3 rounded-full bg-white/10 backdrop-blur-lg border border-white/20 transition-all duration-300 active:scale-95 text-white hover:bg-white/20 flex items-center justify-center space-x-2 text-sm"
               >
-                <BookOpen className="w-5 h-5" />
+                <BookOpen className="w-4 h-4" />
                 <span>Прочитать текст</span>
               </button>
             </div>
@@ -299,15 +299,15 @@ const Slider: React.FC<SliderProps> = ({ children, timeMarks }) => {
       
       {showAudioAlert && (
         <div className="absolute top-4 left-4 right-4 z-50">
-          <div className="bg-red-500/20 backdrop-blur-lg border border-red-500/30 rounded-lg p-4">
-            <p className="text-red-200 text-sm text-center">
+          <div className="bg-red-500/20 backdrop-blur-lg border border-red-500/30 rounded-lg p-3">
+            <p className="text-red-200 text-xs text-center">
               Не удалось воспроизвести аудио. Нажмите на экран и попробуйте снова.
             </p>
           </div>
         </div>
       )}
       
-      <div className="absolute bottom-20 left-1/2 transform -translate-x-1/2 flex space-x-1 z-10">
+      <div className="absolute bottom-16 left-1/2 transform -translate-x-1/2 flex space-x-1 z-10">
         {children.map((_, index) => (
           <div
             key={index}
@@ -322,38 +322,38 @@ const Slider: React.FC<SliderProps> = ({ children, timeMarks }) => {
         ))}
       </div>
 
-      <div className="absolute bottom-4 right-4 flex space-x-2 z-10">
+      <div className="absolute bottom-4 left-4 right-4 flex space-x-2 z-10">
         <button
           onClick={toggleMute}
-          className="p-3 rounded-full bg-white/10 backdrop-blur-lg border border-white/20 transition-all duration-300 active:scale-95 hover:bg-white/20"
+          className="p-3 rounded-full bg-white/10 backdrop-blur-lg border border-white/20 transition-all duration-300 active:scale-95 hover:bg-white/20 flex-shrink-0"
         >
           {isMuted ? (
-            <VolumeX className="w-5 h-5 text-white" />
+            <VolumeX className="w-4 h-4 text-white" />
           ) : (
-            <Volume2 className="w-5 h-5 text-white" />
+            <Volume2 className="w-4 h-4 text-white" />
           )}
         </button>
         
         <button
           onClick={resetPresentation}
-          className="px-3 py-2 rounded-full bg-white/10 backdrop-blur-lg border border-white/20 transition-all duration-300 active:scale-95 text-white text-sm hover:bg-white/20"
+          className="flex-1 px-3 py-2 rounded-full bg-white/10 backdrop-blur-lg border border-white/20 transition-all duration-300 active:scale-95 text-white text-sm hover:bg-white/20"
         >
           С начала
         </button>
         
         <button
           onClick={togglePlayPause}
-          className="p-3 rounded-full bg-white/10 backdrop-blur-lg border border-white/20 transition-all duration-300 active:scale-95 hover:bg-white/20"
+          className="p-3 rounded-full bg-white/10 backdrop-blur-lg border border-white/20 transition-all duration-300 active:scale-95 hover:bg-white/20 flex-shrink-0"
         >
           {isPlaying ? (
-            <Pause className="w-5 h-5 text-white" />
+            <Pause className="w-4 h-4 text-white" />
           ) : (
-            <Play className="w-5 h-5 text-white" />
+            <Play className="w-4 h-4 text-white" />
           )}
         </button>
       </div>
 
-      <div className="absolute top-2 left-1/2 transform -translate-x-1/2 text-white/50 text-xs backdrop-blur-lg bg-white/5 px-3 py-1 rounded-full border border-white/10">
+      <div className="absolute top-3 left-1/2 transform -translate-x-1/2 text-white/50 text-xs backdrop-blur-lg bg-white/5 px-3 py-1 rounded-full border border-white/10">
         {isPlaying ? 'Идёт презентация...' : 'На паузе'}
       </div>
     </div>
